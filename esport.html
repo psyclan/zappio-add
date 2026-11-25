@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0b0b0f">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Cdefs%3E%3ClinearGradient id=%22g%22 x1=%220%22 y1=%220%22 x2=%221%22 y2=%221%22%3E%3Cstop offset=%220%22 stop-color=%22%23ff5f6d%22/%3E%3Cstop offset=%22.35%22 stop-color=%22%23ff8a3d%22/%3E%3Cstop offset=%221%22 stop-color=%22%237a5cff%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width=%2264%22 height=%2264%22 rx=%2216%22 fill=%22url(%23g)%22/%3E%3Ctext x=%2232%22 y=%2245%22 font-family=%22Arial%22 font-weight=%22800%22 font-size=%2238%22 fill=%22%23fff%22 text-anchor=%22middle%22%3EZ%3C/text%3E%3C/svg%3E">
+<title>Zappio – slå på E-sport</title>
+<style>
+  :root { --bg: #0b0b0f; --card: #17171c; --line: rgba(255,255,255,.1); --text: #f5f5f7; --text2: rgba(245,245,247,.68); --accent: #6aa8ff; --ok: #6fd08c; --err: #ff6961; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; background: var(--bg); color: var(--text); font: 17px/1.45 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 520px; margin: 0 auto; padding: 28px 20px calc(40px + env(safe-area-inset-bottom)); }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 20px; letter-spacing: -.01em; }
+  .brand i { width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(140deg, #ff5f6d 0%, #ff8a3d 35%, #7a5cff 100%); box-shadow: 0 4px 14px rgba(255,95,109,.35); display: inline-flex; align-items: center; justify-content: center; font-style: normal; font-weight: 800; font-size: 22px; letter-spacing: -.04em; color: #fff; }
+  h1 { font-size: 30px; line-height: 1.15; letter-spacing: -.02em; margin: 26px 0 8px; }
+  p.lead { margin: 0 0 22px; color: var(--text2); }
+  .seg { display: grid; grid-template-columns: 1fr 1fr; background: var(--card); border-radius: 12px; padding: 3px; margin-bottom: 18px; }
+  .seg button { border: 0; background: transparent; color: var(--text2); font: inherit; font-weight: 600; padding: 9px 0; border-radius: 10px; }
+  .seg button.on { background: #2c2c33; color: var(--text); }
+  .group { background: var(--card); border-radius: 16px; overflow: hidden; }
+  label { display: block; padding: 12px 16px 12px; border-bottom: 1px solid var(--line); }
+  label:last-child { border-bottom: 0; }
+  label span { display: block; font-size: 13px; color: var(--text2); margin-bottom: 4px; }
+  input { width: 100%; border: 0; outline: 0; background: transparent; color: var(--text); font: inherit; padding: 0; }
+  input::placeholder { color: rgba(245,245,247,.32); }
+  .opt { font-size: 13px; color: var(--text2); margin: 18px 4px 8px; }
+  .paste { float: right; border: 0; background: none; color: var(--accent); font: inherit; font-size: 14px; font-weight: 600; padding: 0; }
+  button.send { width: 100%; margin-top: 24px; border: 0; border-radius: 14px; padding: 16px; background: var(--text); color: #111; font: inherit; font-weight: 700; font-size: 18px; }
+  button.send:disabled { opacity: .5; }
+  .safe { display: flex; gap: 10px; margin-top: 20px; font-size: 14px; color: var(--text2); }
+  .safe b { color: var(--ok); }
+  .msg { margin-top: 18px; padding: 14px 16px; border-radius: 14px; font-weight: 600; display: none; }
+  .msg.ok { display: block; background: rgba(111,208,140,.14); color: var(--ok); }
+  .msg.err { display: block; background: rgba(255,105,97,.14); color: var(--err); }
+  .hide { display: none; }
+  .done { text-align: center; padding-top: 40px; }
+  .done .big { font-size: 64px; }
+  .link { color: var(--accent); text-decoration: none; font-weight: 600; }
+  .steps { margin: 0 0 22px; padding-left: 22px; color: var(--text2); }
+  .steps li { margin-bottom: 6px; }
+</style>
+</head>
+<body>
+<main>
+  <div class="brand"><i>Z</i>Zappio</div>
+  <div id="form">
+    <h1 id="h1">Slå på E-sport</h1>
+    <p class="lead" id="lead">Visar livematcher och schema för CS2, League of Legends och Valorant på TV:n. Själva sändningarna öppnas hos arrangörerna.</p>
+    <ol class="steps">
+      <li id="s1">Skapa ett gratis konto på <a class="link" href="https://app.pandascore.co/signup" target="_blank" rel="noopener">pandascore.co</a>.</li>
+      <li id="s2">Kopiera din API-nyckel (token) från <a class="link" href="https://app.pandascore.co/dashboard/main" target="_blank" rel="noopener">din översikt</a>.</li>
+      <li id="s3">Klistra in den här och tryck Skicka.</li>
+    </ol>
+    <div class="group">
+      <label><span id="lk">API-nyckel <button class="paste" type="button" data-for="key">Klistra in</button></span><input id="key" autocomplete="off" autocapitalize="off" spellcheck="false"></label>
+    </div>
+    <button class="send" id="send" type="button">Skicka till TV:n</button>
+    <div class="msg" id="msg"></div>
+    <div class="safe"><b>🔒</b><span id="safe">Krypteras med en nyckel som bara finns i QR-koden på din TV.</span></div>
+  </div>
+  <div id="done" class="done hide"><div class="big">✓</div><h1 id="dh">Skickat!</h1><p class="lead" id="dl">Titta på TV:n – E-sport öppnas när nyckeln är kontrollerad.</p></div>
+</main>
+<script>
+(function () {
+  'use strict';
+  var RELAY = 'https://ntfy.sh/';
+  var h = {}; location.hash.slice(1).split('&').forEach(function (p) { var i = p.indexOf('='); if (i > 0) h[p.slice(0, i)] = decodeURIComponent(p.slice(i + 1)); });
+  try { history.replaceState(null, '', location.pathname); } catch (e) {}
+  var $ = function (id) { return document.getElementById(id); };
+  var en = h.l ? h.l !== 'sv' : !/^sv/i.test(navigator.language || '');
+  var T = en ? {
+    h1: 'Turn on Esports', lead: 'Shows live matches and the schedule for CS2, League of Legends and Valorant on the TV. The broadcasts themselves open at the organisers.',
+    s1: 'Create a free account at <a class="link" href="https://app.pandascore.co/signup" target="_blank" rel="noopener">pandascore.co</a>.',
+    s2: 'Copy your API key (token) from <a class="link" href="https://app.pandascore.co/dashboard/main" target="_blank" rel="noopener">your dashboard</a>.',
+    s3: 'Paste it here and tap Send.', lk: 'API key', send: 'Send to TV', paste: 'Paste', sending: 'Sending…',
+    safe: 'Encrypted with a key that only exists in the QR code on your TV.', dh: 'Sent!', dl: 'Look at the TV – Esports opens once the key is checked.',
+    e_link: 'Scan the QR code on the TV again – this link is not complete.', e_fill: 'Paste your API key', e_net: 'Could not send. Check the connection and try again.', e_crypto: 'This browser cannot encrypt. Try Safari or Chrome.'
+  } : {
+    send: 'Skicka till TV:n', paste: 'Klistra in', sending: 'Skickar…',
+    e_link: 'Skanna QR-koden på TV:n igen – den här länken är inte komplett.', e_fill: 'Klistra in din API-nyckel', e_net: 'Kunde inte skicka. Kontrollera uppkopplingen och försök igen.', e_crypto: 'Den här webbläsaren kan inte kryptera. Prova Safari eller Chrome.'
+  };
+  if (en) {
+    document.documentElement.lang = 'en'; document.title = 'Zappio – turn on Esports';
+    ['h1', 'lead', 'safe', 'dh', 'dl', 's3', 'send'].forEach(function (k) { $(k).textContent = T[k]; });
+    $('s1').innerHTML = T.s1; $('s2').innerHTML = T.s2;
+    $('lk').firstChild.textContent = T.lk + ' ';
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('.paste'), function (b) {
+    b.textContent = T.paste;
+    if (!navigator.clipboard || !navigator.clipboard.readText) { b.className += ' hide'; return; }
+    b.onclick = function () { navigator.clipboard.readText().then(function (x) { $(b.getAttribute('data-for')).value = x.trim(); }).catch(function () {}); };
+  });
+  function msg(t) { var e = $('msg'); e.textContent = t; e.className = 'msg err'; }
+  function b64u(a) { var s = ''; for (var i = 0; i < a.length; i++) s += String.fromCharCode(a[i]); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
+  function unb64u(s) { s = s.replace(/-/g, '+').replace(/_/g, '/'); while (s.length % 4) s += '='; var b = atob(s), a = new Uint8Array(b.length); for (var i = 0; i < b.length; i++) a[i] = b.charCodeAt(i); return a; }
+  var ok = h.t && h.k && /^[A-Za-z0-9_-]{16,}$/.test(h.t) && /^[A-Za-z0-9_-]{40,}$/.test(h.k);
+  if (!ok) { msg(T.e_link); $('send').disabled = true; }
+  if (!window.crypto || !crypto.subtle) { msg(T.e_crypto); $('send').disabled = true; }
+  var key = ok ? unb64u(h.k) : null, topic = 'zappio-' + h.t;
+  $('send').onclick = function () {
+    var d = { v: 1, kind: 'esport', key: $('key').value.trim() };
+    if (!d.key) return msg(T.e_fill);
+    var btn = $('send'); btn.disabled = true; btn.textContent = T.sending;
+    var iv = crypto.getRandomValues(new Uint8Array(12));
+    crypto.subtle.importKey('raw', key, { name: 'AES-GCM' }, false, ['encrypt']).then(function (k) {
+      return crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, k, new TextEncoder().encode(JSON.stringify(d)));
+    }).then(function (ct) {
+      return fetch(RELAY + topic, { method: 'POST', body: 'z1.' + b64u(iv) + '.' + b64u(new Uint8Array(ct)), referrerPolicy: 'no-referrer' });
+    }).then(function (r) {
+      if (!r.ok) throw new Error(r.status);
+      key = null; $('key').value = '';
+      $('form').className = 'hide'; $('done').className = 'done';
+    }).catch(function () { btn.disabled = false; btn.textContent = T.send; msg(T.e_net); });
+  };
+})();
+</script>
+</body>
+</html>
