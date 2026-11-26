@@ -17,7 +17,7 @@
 <script>
 (function () {
   'use strict';
-  // Zappio's YouTube player: plays one video (trailer or live stream) inside the Zappio TV app.
+  // Zappio's YouTube player: plays a video (trailer, highlight, live stream) inside the Zappio TV app; Shorts loads the next one with 'load'.
   // Zappio sends commands (play/pause, seek) and gets told when the video ends or fails.
   var q = {}; location.hash.slice(1).split('&').forEach(function (p) { var i = p.indexOf('='); if (i > 0) q[p.slice(0, i)] = decodeURIComponent(p.slice(i + 1)); });
   var id = /^[\w-]{11}$/.test(q.v || '') ? q.v : '';
@@ -29,7 +29,7 @@
       videoId: id, width: '100%', height: '100%',
       playerVars: { autoplay: 1, controls: 0, rel: 0, modestbranding: 1, playsinline: 1, iv_load_policy: 3, fs: 0, disablekb: 1, hl: q.l || 'en', cc_lang_pref: q.l || 'en' },
       events: {
-        onReady: function () { player.playVideo(); tell({ ev: 'ready', live: !!(player.getVideoData && player.getVideoData().isLive) });
+        onReady: function () { player.playVideo(); tell({ ev: 'ready', ver: 2, live: !!(player.getVideoData && player.getVideoData().isLive) });
           // Some TVs block sound on autoplay: start muted rather than not at all
           setTimeout(function () { if (player.getPlayerState() !== 1) { player.mute(); player.playVideo(); tell({ ev: 'muted' }); } }, 2500); },
         onStateChange: function (e) { tell({ ev: 'state', s: e.data }); if (e.data === 0) tell({ ev: 'ended' }); },
@@ -43,6 +43,10 @@
       if (d.cmd === 'toggle') { if (player.getPlayerState() === 1) player.pauseVideo(); else player.playVideo(); }
       else if (d.cmd === 'seek') player.seekTo(Math.max(0, player.getCurrentTime() + d.s), true);
       else if (d.cmd === 'unmute') { player.unMute(); player.setVolume(100); }
+      // Next clip in the same player (Shorts) – much faster than loading the page again
+      else if (d.cmd === 'load' && /^[\w-]{11}$/.test(d.v || '')) player.loadVideoById(d.v);
+      else if (d.cmd === 'pause') player.pauseVideo();
+      else if (d.cmd === 'play') player.playVideo();
       else if (d.cmd === 'time') tell({ ev: 'time', t: player.getCurrentTime(), d: player.getDuration() });
     } catch (x) {}
   });
