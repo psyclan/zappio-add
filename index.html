@@ -80,9 +80,9 @@
     bm: 'M3U link', bx: 'Xtream Codes', lu: 'M3U link', ls: 'Server', lusr: 'Username', lpw: 'Password', lopt: 'Optional', ln: 'Name', le: 'Custom EPG link',
     send: 'Send to TV', safe: 'Encrypted with a key that only exists in the QR code on your TV. Nobody else – not even Zappio – can read the details.',
     dh: 'Sent!', dl: 'Look at the TV – check the details and press Add.', paste: 'Paste', sending: 'Sending…',
-    e_link: 'Scan the QR code on the TV again – this link is not complete.', e_url: 'The link must start with http:// or https://', e_xt: 'Fill in server, username and password', e_net: 'Could not send. Check the connection and try again.', e_crypto: 'This browser cannot encrypt. Try Safari or Chrome.'
+    e_link: 'Scan the QR code on the TV again – this link is not complete.', e_url: 'The link must start with http:// or https://', e_xt: 'Fill in server, username and password', e_net: 'Could not send. Check the connection and try again.', e_crypto: 'This browser cannot encrypt. Try Safari or Chrome.', xt_found: 'That is an Xtream link – switched to Xtream so catch-up, movies and series come along.'
   } : {
-    paste: 'Klistra in', sending: 'Skickar…', send: 'Skicka till TV:n',
+    paste: 'Klistra in', sending: 'Skickar…', send: 'Skicka till TV:n', xt_found: 'Det är en Xtream-länk – bytte till Xtream så catch-up, filmer och serier följer med.',
     e_link: 'Skanna QR-koden på TV:n igen – den här länken är inte komplett.', e_url: 'Länken måste börja med http:// eller https://', e_xt: 'Fyll i server, användarnamn och lösenord', e_net: 'Kunde inte skicka. Kontrollera uppkopplingen och försök igen.', e_crypto: 'Den här webbläsaren kan inte kryptera. Prova Safari eller Chrome.'
   };
   if (en) {
@@ -93,7 +93,7 @@
   Array.prototype.forEach.call(document.querySelectorAll('.paste'), function (b) {
     b.textContent = T.paste;
     if (!navigator.clipboard || !navigator.clipboard.readText) { b.className += ' hide'; return; }
-    b.onclick = function () { navigator.clipboard.readText().then(function (x) { $(b.getAttribute('data-for')).value = x.trim(); split(); }).catch(function () {}); };
+    b.onclick = function () { navigator.clipboard.readText().then(function (x) { $(b.getAttribute('data-for')).value = x.trim(); split(); if (b.getAttribute('data-for') === 'url') xtFromUrl(); }).catch(function () {}); };
   });
   var type = 'm3u';
   $('bm').onclick = function () { type = 'm3u'; $('bm').className = 'on'; $('bx').className = ''; $('gm').className = 'group'; $('gx').className = 'group hide'; };
@@ -106,6 +106,20 @@
     if (q.username && q.password) { $('server').value = m[1]; $('user').value = q.username; $('pass').value = q.password; }
   }
   $('server').addEventListener('change', split);
+  // One field for all links: an Xtream link pasted as M3U switches to Xtream, so catch-up, movies and series come along
+  function xtFromUrl() {
+    var s = $('url').value.trim(), m = /^(https?:\/\/[^\/?#\s]+)(\/[^?#\s]*)?(?:\?([^#\s]*))?/i.exec(s);
+    if (!m) return;
+    var q = {}, path = m[2] || '', base = m[1] + path.replace(/\/(get|player_api|xmltv|panel_api)\.php$/i, '').replace(/\/+$/, ''), st;
+    (m[3] || '').split('&').forEach(function (p) { var i = p.indexOf('='); if (i > 0) { try { q[p.slice(0, i).toLowerCase()] = decodeURIComponent(p.slice(i + 1)); } catch (e) {} } });
+    var xt = null;
+    if (q.username && q.password && /(get|player_api|xmltv|panel_api)\.php$/i.test(path)) xt = { s: base, u: q.username, p: q.password };
+    else if ((st = /^(.*?)\/(?:live|movie|series)\/([^\/]+)\/([^\/]+)\/[^\/]+$/i.exec(path)) && !/\.m3u8?$/i.test(path)) xt = { s: m[1] + st[1], u: st[2], p: st[3] };
+    if (!xt) return;
+    $('bx').onclick(); $('server').value = xt.s; $('user').value = xt.u; $('pass').value = xt.p; $('url').value = '';
+    var e = $('msg'); e.textContent = T.xt_found; e.className = 'msg ok';
+  }
+  $('url').addEventListener('change', xtFromUrl); $('url').addEventListener('paste', function () { setTimeout(xtFromUrl, 0); });
   function msg(t, ok) { var e = $('msg'); e.textContent = t; e.className = 'msg ' + (ok ? 'ok' : 'err'); }
   function b64u(a) { var s = ''; for (var i = 0; i < a.length; i++) s += String.fromCharCode(a[i]); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
   function unb64u(s) { s = s.replace(/-/g, '+').replace(/_/g, '/'); while (s.length % 4) s += '='; var b = atob(s), a = new Uint8Array(b.length); for (var i = 0; i < b.length; i++) a[i] = b.charCodeAt(i); return a; }

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0b0b0f">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Cdefs%3E%3ClinearGradient id=%22g%22 x1=%220%22 y1=%220%22 x2=%221%22 y2=%221%22%3E%3Cstop offset=%220%22 stop-color=%22%2322d3ee%22/%3E%3Cstop offset=%22.45%22 stop-color=%22%233b82f6%22/%3E%3Cstop offset=%221%22 stop-color=%22%236366f1%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width=%2264%22 height=%2264%22 rx=%2216%22 fill=%22url(%23g)%22/%3E%3Ctext x=%2232%22 y=%2245%22 font-family=%22Arial%22 font-weight=%22800%22 font-size=%2238%22 fill=%22%23fff%22 text-anchor=%22middle%22%3EZ%3C/text%3E%3C/svg%3E">
+<title>Zappio – skriv koden från TV:n</title>
+<style>
+  :root { --bg: #0b0b0f; --card: #17171c; --line: rgba(255,255,255,.1); --text: #f5f5f7; --text2: rgba(245,245,247,.68); --accent: #6aa8ff; --ok: #6fd08c; --err: #ff6961; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; background: var(--bg); color: var(--text); font: 17px/1.45 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 520px; margin: 0 auto; padding: 28px 20px calc(40px + env(safe-area-inset-bottom)); }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 20px; letter-spacing: -.01em; }
+  .brand i { width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(140deg, #22d3ee 0%, #3b82f6 45%, #6366f1 100%); box-shadow: 0 4px 14px rgba(59,130,246,.35); display: inline-flex; align-items: center; justify-content: center; font-style: normal; font-weight: 800; font-size: 22px; letter-spacing: -.04em; color: #fff; }
+  h1 { font-size: 30px; line-height: 1.15; letter-spacing: -.02em; margin: 26px 0 8px; }
+  p.lead { margin: 0 0 22px; color: var(--text2); }
+  label { display: block; font-size: 13px; color: var(--text2); margin-bottom: 8px; }
+  input.code { width: 100%; border: 0; outline: 0; border-radius: 16px; background: var(--card); color: var(--text); font: 700 40px/1 ui-monospace, Menlo, monospace; letter-spacing: .3em; text-align: center; padding: 18px 10px; }
+  input.code::placeholder { color: rgba(245,245,247,.25); }
+  button.send { width: 100%; margin-top: 20px; border: 0; border-radius: 14px; padding: 16px; background: var(--text); color: #111; font: inherit; font-weight: 700; font-size: 18px; }
+  button.send:disabled { opacity: .5; }
+  .safe { display: flex; gap: 10px; margin-top: 20px; font-size: 14px; color: var(--text2); }
+  .safe b { color: var(--ok); }
+  .msg { margin-top: 18px; padding: 14px 16px; border-radius: 14px; font-weight: 600; display: none; }
+  .msg.err { display: block; background: rgba(255,105,97,.14); color: var(--err); }
+  .msg.info { display: block; background: rgba(106,168,255,.12); color: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+  <div class="brand"><i>Z</i>Zappio</div>
+  <h1 id="h1">Skriv koden från TV:n</h1>
+  <p class="lead" id="lead">Koden visas under QR-koden på TV:n och gäller i 10 minuter.</p>
+  <label for="code" id="lc">Kod (6 siffror)</label>
+  <input class="code" id="code" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" maxlength="7" placeholder="123456">
+  <button class="send" id="send" type="button">Fortsätt</button>
+  <div class="msg" id="msg"></div>
+  <div class="safe"><b>🔒</b><span id="safe">Telefonen och TV:n kommer överens om en egen nyckel. Det du skriver i nästa steg krypteras med den – varken Zappio-servern eller brevlådan kan läsa det.</span></div>
+</main>
+<script>
+(function () {
+  'use strict';
+  var SERVER = 'https://zappio-api.andreas-9ac.workers.dev';
+  var RELAY = 'https://ntfy.sh/';
+  var $ = function (id) { return document.getElementById(id); };
+  var q = {}; location.search.slice(1).split('&').forEach(function (p) { var i = p.indexOf('='); if (i > 0) q[p.slice(0, i)] = decodeURIComponent(p.slice(i + 1)); });
+  if (/^https:\/\/[\w.-]+$/.test(q.s || '')) SERVER = q.s;
+  var en = !/^sv/i.test(navigator.language || '');
+  var T = en ? { h1: 'Type the code from the TV', lead: 'The code is shown under the QR code on the TV and works for 10 minutes.', lc: 'Code (6 digits)', send: 'Continue',
+    safe: 'The phone and the TV agree on a key of their own. What you type in the next step is encrypted with it – neither the Zappio server nor the mailbox can read it.',
+    busy: 'Connecting to the TV…', wait: 'Still looking for the code – it can take up to a minute after it appears on the TV…', e_len: 'Type all 6 digits', e_404: 'No TV has that code – check the digits, or the code has run out (press OK on the TV for a new one).',
+    e_429: 'Too many tries – wait a while and try again.', e_net: 'Could not reach Zappio. Check the connection and try again.', e_crypto: 'This browser cannot encrypt. Try Safari or Chrome.' }
+  : { send: 'Fortsätt', busy: 'Ansluter till TV:n…', wait: 'Letar fortfarande efter koden – det kan ta upp till en minut efter att den visats på TV:n…', e_len: 'Skriv alla 6 siffror',
+    e_404: 'Ingen TV har den koden – kontrollera siffrorna, eller så har koden gått ut (tryck OK på TV:n för en ny).', e_429: 'För många försök – vänta en stund och försök igen.',
+    e_net: 'Kunde inte nå Zappio. Kontrollera uppkopplingen och försök igen.', e_crypto: 'Den här webbläsaren kan inte kryptera. Prova Safari eller Chrome.' };
+  if (en) { document.documentElement.lang = 'en'; document.title = 'Zappio – type the code from the TV'; ['h1', 'lead', 'lc', 'send', 'safe'].forEach(function (k) { $(k).textContent = T[k]; }); }
+  function msg(t, cls) { var e = $('msg'); e.textContent = t; e.className = 'msg ' + (cls || 'err'); }
+  function b64u(a) { var s = ''; for (var i = 0; i < a.length; i++) s += String.fromCharCode(a[i]); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
+  function unb64u(s) { s = s.replace(/-/g, '+').replace(/_/g, '/'); while (s.length % 4) s += '='; var b = atob(s), a = new Uint8Array(b.length); for (var i = 0; i < b.length; i++) a[i] = b.charCodeAt(i); return a; }
+  if (!window.crypto || !crypto.subtle) { msg(T.e_crypto); $('send').disabled = true; }
+  var input = $('code');
+  input.addEventListener('input', function () { var v = input.value.replace(/\D/g, '').slice(0, 6); if (input.value !== v) input.value = v; if (v.length === 6) $('send').click(); });
+  if (/^\d{6}$/.test(q.c || '')) input.value = q.c;
+  var PAGES = { source: 'index.html', tmdb: 'tmdb.html', osub: 'osub.html', esport: 'esport.html', sport: 'sport.html', youtube: 'youtube.html', fdata: 'fdata.html', license: 'license.html' };
+  var busy = false;
+  // KV can take a moment to reach every data centre: look again for up to a minute
+  function lookup(code, tries) {
+    return fetch(SERVER + '/v1/pair/' + code, { referrerPolicy: 'no-referrer', cache: 'no-store' }).then(function (r) {
+      if (r.status === 404 && tries > 0) { if (tries < 10) msg(T.wait, 'info'); return new Promise(function (ok) { setTimeout(ok, 5000); }).then(function () { return lookup(code, tries - 1); }); }
+      return r.json().catch(function () { return {}; }).then(function (j) { return { st: r.status, j: j }; });
+    });
+  }
+  $('send').onclick = function () {
+    if (busy) return;
+    var code = input.value.replace(/\D/g, '');
+    if (code.length !== 6) return msg(T.e_len);
+    busy = true; var btn = $('send'); btn.disabled = true; btn.textContent = T.busy; msg(T.busy, 'info');
+    var fail = function (t) { busy = false; btn.disabled = false; btn.textContent = T.send; msg(t); };
+    lookup(code, 11).then(function (res) {
+      if (res.st === 404) return fail(T.e_404);
+      if (res.st === 429) return fail(T.e_429);
+      var d = res.j;
+      if (res.st !== 200 || !d.topic || !d.pub || !PAGES[d.mode]) return fail(T.e_net);
+      var mine, tvKey;
+      return crypto.subtle.importKey('raw', unb64u(d.pub), { name: 'ECDH', namedCurve: 'P-256' }, false, []).then(function (k) {
+        tvKey = k;
+        return crypto.subtle.generateKey({ name: 'ECDH', namedCurve: 'P-256' }, true, ['deriveBits']);
+      }).then(function (kp) {
+        mine = kp;
+        return crypto.subtle.deriveBits({ name: 'ECDH', public: tvKey }, kp.privateKey, 256);
+      }).then(function (bits) { return crypto.subtle.digest('SHA-256', bits); }).then(function (h) {
+        return crypto.subtle.exportKey('raw', mine.publicKey).then(function (pub) {
+          // Our public half goes to the TV through the mailbox; the shared key never leaves the two devices
+          return fetch(RELAY + d.topic, { method: 'POST', body: 'zk.' + b64u(new Uint8Array(pub)), referrerPolicy: 'no-referrer' }).then(function (r) {
+            if (!r.ok) throw new Error(r.status);
+            location.replace(PAGES[d.mode] + '#t=' + d.topic.slice(7) + '&k=' + b64u(new Uint8Array(h)) + (d.x || ''));
+          });
+        });
+      });
+    }).catch(function () { fail(T.e_net); });
+  };
+  input.focus();
+})();
+</script>
+</body>
+</html>
