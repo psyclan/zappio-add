@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0b0b0f">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Cdefs%3E%3ClinearGradient id=%22g%22 x1=%220%22 y1=%220%22 x2=%221%22 y2=%221%22%3E%3Cstop offset=%220%22 stop-color=%22%2322d3ee%22/%3E%3Cstop offset=%22.45%22 stop-color=%22%233b82f6%22/%3E%3Cstop offset=%221%22 stop-color=%22%236366f1%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width=%2264%22 height=%2264%22 rx=%2216%22 fill=%22url(%23g)%22/%3E%3Ctext x=%2232%22 y=%2245%22 font-family=%22Arial%22 font-weight=%22800%22 font-size=%2238%22 fill=%22%23fff%22 text-anchor=%22middle%22%3EZ%3C/text%3E%3C/svg%3E">
+<title>Zappio – du är inbjuden</title>
+<style>
+  :root { --bg: #0b0b0f; --card: #17171c; --line: rgba(255,255,255,.1); --text: #f5f5f7; --text2: rgba(245,245,247,.68); --accent: #6aa8ff; --ok: #6fd08c; --err: #ff6961; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; background: var(--bg); color: var(--text); font: 17px/1.45 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 520px; margin: 0 auto; padding: 28px 20px calc(40px + env(safe-area-inset-bottom)); }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 20px; letter-spacing: -.01em; }
+  .brand i { width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(140deg, #22d3ee 0%, #3b82f6 45%, #6366f1 100%); box-shadow: 0 4px 14px rgba(59,130,246,.35); display: inline-flex; align-items: center; justify-content: center; font-style: normal; font-weight: 800; font-size: 22px; letter-spacing: -.04em; color: #fff; }
+  h1 { font-size: 30px; line-height: 1.15; letter-spacing: -.02em; margin: 26px 0 8px; }
+  p.lead { margin: 0 0 22px; color: var(--text2); }
+  label { display: block; font-size: 13px; color: var(--text2); margin-bottom: 8px; }
+  input.code { width: 100%; border: 0; outline: 0; border-radius: 16px; background: var(--card); color: var(--text); font: 700 40px/1 ui-monospace, Menlo, monospace; letter-spacing: .3em; text-align: center; padding: 18px 10px; }
+  input.code::placeholder { color: rgba(245,245,247,.25); }
+  button.send { width: 100%; margin-top: 20px; border: 0; border-radius: 14px; padding: 16px; background: var(--text); color: #111; font: inherit; font-weight: 700; font-size: 18px; }
+  button.send:disabled { opacity: .5; }
+  .safe { display: flex; gap: 10px; margin-top: 20px; font-size: 14px; color: var(--text2); }
+  .safe b { color: var(--ok); }
+  .msg { margin-top: 18px; padding: 14px 16px; border-radius: 14px; font-weight: 600; display: none; }
+  .msg.err { display: block; background: rgba(255,105,97,.14); color: var(--err); }
+  .msg.info { display: block; background: rgba(106,168,255,.12); color: var(--accent); }
+
+  .code { margin: 18px 0 8px; padding: 20px; border-radius: 18px; background: var(--card); text-align: center; }
+  .code b { display: block; font-size: 44px; letter-spacing: .08em; font-variant-numeric: tabular-nums; }
+  .code button { margin-top: 12px; border: 0; border-radius: 12px; padding: 10px 18px; font: inherit; font-weight: 600; background: rgba(255,255,255,.1); color: var(--text); }
+  ol.steps2 { padding-left: 22px; } ol.steps2 li { margin-bottom: 12px; }
+  ul.get { padding-left: 22px; color: var(--text2); } ul.get li { margin-bottom: 6px; }
+  .note { color: var(--text2); font-size: 15px; margin-top: 22px; }
+</style>
+</head>
+<body>
+<main>
+  <div class="brand"><i>Z</i>Zappio</div>
+  <h1 id="h1">Du är inbjuden till Zappio Platinum</h1>
+  <p class="lead" id="lead">Zappio är en TV-app för Samsung-TV i sluten beta. Med din inbjudan får din TV Platinum i 30 dagar.</p>
+  <div class="code"><span id="lc">Din inbjudningskod</span><b id="code">ZAP-····</b><button id="copy" type="button">Kopiera</button></div>
+  <h2 id="h2a">Så här gör du</h2>
+  <ol class="steps2">
+    <li id="s1">Installera Zappio på din Samsung-TV. Appen finns inte i Samsungs butik än – be den som bjöd in dig om installationsfilen.</li>
+    <li id="s2">Starta Zappio och gå till <b>Inställningar → Om &amp; hjälp → Licens</b>.</li>
+    <li id="s3">Skanna QR-koden på TV:n med mobilen och skriv in koden ovan.</li>
+  </ol>
+  <h2 id="h2b">Det här ingår i Platinum</h2>
+  <ul class="get">
+    <li id="g1">Sport och e-sport: matcher, tabeller och vilken kanal som visar matchen</li>
+    <li id="g2">Omslag, filminfo och topplistor för filmer och serier</li>
+    <li id="g3">Inga egna API-nycklar – allt hämtas via Zappio-servern</li>
+  </ul>
+  <p class="note" id="note">Zappio innehåller inga kanaler – appen spelar dina egna källor. En TV kan bara använda en inbjudan.</p>
+</main>
+<script>
+(function () {
+  'use strict';
+  var h = {}; location.hash.slice(1).split('&').forEach(function (p) { var i = p.indexOf('='); if (i > 0) h[p.slice(0, i)] = decodeURIComponent(p.slice(i + 1)); });
+  var $ = function (id) { return document.getElementById(id); };
+  var code = /^ZAP-?[A-Z0-9]{4}$/i.test(h.c || '') ? h.c.toUpperCase().replace(/^ZAP-?/, 'ZAP-') : '';
+  var en = h.l ? h.l !== 'sv' : !/^sv/i.test(navigator.language || '');
+  if (en) {
+    document.documentElement.lang = 'en'; document.title = 'Zappio – you are invited';
+    var T = { h1: 'You are invited to Zappio Platinum', lead: 'Zappio is a TV app for Samsung TVs in closed beta. With your invite your TV gets Platinum for 30 days.', lc: 'Your invite code', copy: 'Copy', h2a: 'How to', h2b: 'What Platinum gives you',
+      s1: 'Install Zappio on your Samsung TV. It is not in Samsung\'s store yet – ask the person who invited you for the install file.', s2: 'Start Zappio and go to <b>Settings → About &amp; help → Licence</b>.', s3: 'Scan the QR code on the TV with your phone and type the code above.',
+      g1: 'Sport and e-sport: matches, tables and which channel shows the match', g2: 'Covers, film info and top lists for films and series', g3: 'No API keys of your own – everything comes through the Zappio server',
+      note: 'Zappio contains no channels – the app plays your own sources. Each TV can use one invite.' };
+    Object.keys(T).forEach(function (k) { var e = $(k); if (e) e.innerHTML = T[k]; });
+  }
+  $('code').textContent = code || '–';
+  $('copy').onclick = function () {
+    if (!code) return;
+    var done = function () { $('copy').textContent = en ? 'Copied' : 'Kopierad'; };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(code).then(done, function () {});
+  };
+})();
+</script>
+</body>
+</html>

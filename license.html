@@ -53,8 +53,8 @@
     <p class="lead" id="lead">Med Platinum hämtar TV:n sport, e-sport, omslag och topplistor via Zappio-servern – utan egna API-nycklar.</p>
     <div class="group">
       <label><span id="ld">TV:ns enhets-ID</span><div class="dev" id="dev">–</div></label>
-      <label><span id="lk">Aktiveringskod <button class="paste" type="button" data-for="code">Klistra in</button></span><input id="code" autocomplete="off" autocapitalize="off" spellcheck="false"></label>
-      <label><span id="lt">Giltig i</span><select id="days"><option value="30">30 dagar</option><option value="365" selected>1 år</option><option value="3650">10 år</option></select></label>
+      <label><span id="lk">Aktiverings- eller inbjudningskod <button class="paste" type="button" data-for="code">Klistra in</button></span><input id="code" autocomplete="off" autocapitalize="off" spellcheck="false"></label>
+      <label id="daysRow"><span id="lt">Giltig i</span><select id="days"><option value="30">30 dagar</option><option value="365" selected>1 år</option><option value="3650">10 år</option></select></label>
       <label><span id="ln">Namn på TV:n (valfritt)</span><input id="note" autocomplete="off" placeholder="The Frame"></label>
     </div>
     <button class="send" id="send" type="button">Aktivera på TV:n</button>
@@ -73,12 +73,14 @@
   var en = h.l ? h.l !== 'sv' : !/^sv/i.test(navigator.language || '');
   var T = en ? {
     h1: 'Activate Platinum', lead: 'With Platinum the TV gets sport, e-sport, covers and top lists through the Zappio server – no API keys of your own.',
-    ld: 'TV device ID', lk: 'Activation code', lt: 'Valid for', ln: 'Name of the TV (optional)', send: 'Activate on the TV', paste: 'Paste', sending: 'Activating…',
+    ld: 'TV device ID', lk: 'Activation or invite code', lt: 'Valid for', ln: 'Name of the TV (optional)', send: 'Activate on the TV', paste: 'Paste', sending: 'Activating…',
     safe: 'The licence is made by your Zappio server and sent encrypted with a key that only exists in the QR code on the TV.', dh: 'Done!', dl: 'Look at the TV – Platinum turns on once the licence is checked.',
     d30: '30 days', d365: '1 year', d3650: '10 years',
-    e_link: 'Scan the QR code on the TV again – this link is not complete.', e_fill: 'Enter the activation code', e_code: 'Wrong activation code', e_srv: 'The server could not make a licence: ', e_net: 'Could not reach the server or the TV. Check the connection and try again.', e_crypto: 'This browser cannot encrypt. Try Safari or Chrome.'
+    e_link: 'Scan the QR code on the TV again – this link is not complete.', e_fill: 'Enter the activation code',
+    i_format: 'That does not look like an invite code (ZAP-XXXX).', i_unknown: 'Unknown invite code – check it with the person who invited you.', i_used: 'All invites on this code are used.', i_self: 'You cannot use your own invite code.', i_twice: 'This TV has already used an invite.', i_has: 'This TV already has Platinum.', i_full: 'The beta is full right now – try again later.', i_old: 'Update Zappio on the TV to 1.76 or later, then scan the QR code again.', i_rate: 'Too many tries – wait a while.', i_done: 'Look at the TV – Platinum turns on in a moment. Welcome to the beta!', e_code: 'Wrong activation code', e_srv: 'The server could not make a licence: ', e_net: 'Could not reach the server or the TV. Check the connection and try again.', e_crypto: 'This browser cannot encrypt. Try Safari or Chrome.'
   } : {
     send: 'Aktivera på TV:n', paste: 'Klistra in', sending: 'Aktiverar…',
+    i_format: 'Det ser inte ut som en inbjudningskod (ZAP-XXXX).', i_unknown: 'Okänd inbjudningskod – kolla med den som bjöd in dig.', i_used: 'Alla inbjudningar på den här koden är använda.', i_self: 'Du kan inte använda din egen inbjudningskod.', i_twice: 'Den här TV:n har redan använt en inbjudan.', i_has: 'Den här TV:n har redan Platinum.', i_full: 'Betan är full just nu – försök igen senare.', i_old: 'Uppdatera Zappio på TV:n till 1.76 eller senare och skanna QR-koden igen.', i_rate: 'För många försök – vänta en stund.', i_done: 'Titta på TV:n – Platinum slås på om en stund. Välkommen till betan!',
     e_link: 'Skanna QR-koden på TV:n igen – den här länken är inte komplett.', e_fill: 'Skriv in aktiveringskoden', e_code: 'Fel aktiveringskod', e_srv: 'Servern kunde inte skapa en licens: ', e_net: 'Kunde inte nå servern eller TV:n. Kontrollera uppkopplingen och försök igen.', e_crypto: 'Den här webbläsaren kan inte kryptera. Prova Safari eller Chrome.'
   };
   if (en) {
@@ -99,16 +101,26 @@
   if (!ok) { msg(T.e_link); $('send').disabled = true; } else $('dev').textContent = h.d;
   if (!window.crypto || !crypto.subtle) { msg(T.e_crypto); $('send').disabled = true; }
   var key = ok ? unb64u(h.k) : null, topic = 'zappio-' + h.t;
+  var isInvite = function (c) { return /^ZAP-?[A-Z0-9]{4}$/i.test(String(c || '').trim()); };
+  // An invite code needs no end date (the server decides) – hide that row while one is typed
+  $('code').addEventListener('input', function () { $('daysRow').style.display = isInvite($('code').value) ? 'none' : ''; });
+  if (h.i && isInvite(h.i)) { $('code').value = h.i.toUpperCase(); $('daysRow').style.display = 'none'; }
   $('send').onclick = function () {
     var code = $('code').value.trim();
     if (!code) return msg(T.e_fill);
+    var invite = isInvite(code);
     var btn = $('send'); btn.disabled = true; btn.textContent = T.sending; $('msg').className = 'msg';
     var fail = function (t) { btn.disabled = false; btn.textContent = T.send; msg(t); };
-    fetch(h.s + '/v1/admin/license', { method: 'POST', headers: { 'content-type': 'application/json', 'x-zappio-admin': code }, body: JSON.stringify({ dev: h.d, days: +$('days').value, note: $('note').value.trim() }), referrerPolicy: 'no-referrer' })
+    var req = invite
+      ? fetch(h.s + '/v1/ref/redeem', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ code: code, dev: h.d, hw: h.w || '', note: $('note').value.trim() }), referrerPolicy: 'no-referrer' })
+      : fetch(h.s + '/v1/admin/license', { method: 'POST', headers: { 'content-type': 'application/json', 'x-zappio-admin': code }, body: JSON.stringify({ dev: h.d, days: +$('days').value, note: $('note').value.trim() }), referrerPolicy: 'no-referrer' });
+    req
       .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { st: r.status, j: j }; }); })
       .then(function (res) {
+        if (invite && res.st !== 200) return fail(T['i_' + (res.j.why || '')] || (T.e_srv + (res.j.error || res.st)));
         if (res.st === 403) return fail(T.e_code);
         if (res.st !== 200 || !res.j.token) return fail(T.e_srv + (res.j.error || res.st));
+        if (invite) $('dl').textContent = T.i_done;
         var d = { v: 1, kind: 'license', token: res.j.token }, iv = crypto.getRandomValues(new Uint8Array(12));
         return crypto.subtle.importKey('raw', key, { name: 'AES-GCM' }, false, ['encrypt']).then(function (k) {
           return crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, k, new TextEncoder().encode(JSON.stringify(d)));
